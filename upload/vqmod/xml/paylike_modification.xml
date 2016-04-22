@@ -1,0 +1,135 @@
+<modification>
+
+	<id>Paylike Refund/Void/Capture from Admin - Full vQmod</id>
+	<version>1</version>
+	<vqmver>2.5.1</vqmver>
+	<author>Ocean</author>
+
+	<file name="admin/view/template/sale/order_form.tpl">
+
+		<!-- Add new fields to form -->
+		<operation>
+            <search position="after" offset="13"><![CDATA[
+            <label class="col-sm-2 control-label" for="input-payment-method"><?php echo $entry_payment_method; ?></label>
+            ]]></search>
+            <add><![CDATA[
+            <?php if($paylike_active == 1) { ?>	
+            <div class="form-group" id="paylike_tool_box">
+            <label class="col-sm-2 control-label" for="input_paylike_tool">Paylike Tool</label>
+            <div class="col-sm-6">
+            	<select name="paylike_action" id="input_paylike_tool" class="form-control">
+                        <option value="">----</option>
+                        <option value="capture">Capture</option>
+                        <option value="void">Void</option>
+                        <option value="refund">Refund</option>
+                      </select>
+                      <input type="hidden" name="p_trans_ref" id="p_trans_ref" value="<?php echo $trans_ref; ?>" />
+                <br/>
+                <input type="text" value="<?php echo $p_amount; ?>" name="paylike_amount" id="paylike_amount" />
+                <br>
+                <input type="button" class="btn-primary btn" id="paylike_action_btn" name="paylike_action_btn" value="Submit" />      
+            </div>
+        	</div>
+
+        	<script type="text/javascript"><!--
+
+        		$(document).ready(function(){
+	        	// Currency
+				$('select[name=\'paylike_action\']').on('change', function() {
+					/* if( $(this).val() == 'refund' ){
+						$('#paylike_amount').hide();
+					} else {
+						$('#paylike_amount').show();
+					} */
+				});
+
+				$('body').on('click','#paylike_action_btn', function() {
+					var p_trans_ref = $('#p_trans_ref').val();
+					var p_action = $('#input_paylike_tool').val();
+					var p_amount = $('#paylike_amount').val();
+					//console.log(p_amount);
+					
+						$.ajax({
+							url: 'index.php?route=payment/paylike/doaction&token=<?php echo $token; ?>',
+							type: 'post',
+							data: {trans_ref: p_trans_ref, p_action: p_action, p_amount: p_amount},
+							dataType: 'json',
+							beforeSend: function() {
+								$('#paylike_action_btn').val('Processing');
+							},
+							complete: function() {
+								$('#paylike_action_btn').val('Submit');
+							},
+							success: function(json) {
+								$('.p_alert').remove();
+
+								console.log(json);
+
+								if (json['error']) {
+									$('#paylike_tool_box').prepend('<div class="alert alert-danger p_alert"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+								}
+
+								if (json['message']) {
+									$('#paylike_tool_box').prepend('<div class="alert alert-danger p_alert"><i class="fa fa-exclamation-circle"></i> ' + json['message'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+								}
+
+								if (json.message) {
+									$('#paylike_tool_box').prepend('<div class="alert alert-danger p_alert"><i class="fa fa-exclamation-circle"></i> ' + json.message + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+								}
+
+								if(typeof json[0] === 'undefined'){}else{
+									if (json[0].message) {
+										$('#paylike_tool_box').prepend('<div class="alert alert-danger p_alert"><i class="fa fa-exclamation-circle"></i> ' + json[0].message + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+									}
+								}
+
+								if (json.transaction) {
+									$('#paylike_tool_box').prepend('<div class="alert alert-success p_alert"><i class="fa fa-check-circle"></i> Action completed successfully <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+								}
+
+								if (json['success']) {
+									$('#paylike_tool_box').prepend('<div class="alert alert-success p_alert"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+								}
+							},
+							error: function(xhr, ajaxOptions, thrownError) {
+								alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+							}
+						});
+					
+				});
+});
+			//--></script>
+        	<?php } ?>
+            ]]></add>
+        </operation>
+
+	</file>
+
+	<file name="admin/controller/sale/order.php">
+
+		<!-- Add new fields to form -->
+		<operation>
+            <search position="after"><![CDATA[
+            protected function getList() {
+            ]]></search>
+            <add><![CDATA[
+            $data['paylike_active'] = 0;	
+            if (isset($this->request->get['order_id'])) {
+	            $p_order_id = $this->request->get['order_id'];
+	            $paylike_query = $this->db->query("SELECT pa.trans_id AS trans_ref, pa.amount AS p_amount, pa.action AS p_action FROM `" . DB_PREFIX . "paylike_admin` pa WHERE pa.order_id = '" . (int)$p_order_id . "'");
+
+				if ($paylike_query->num_rows) {
+					$data['paylike_active'] = 1;
+					$data['p_amount']  		= (int)$paylike_query->row['p_amount'];
+					$data['trans_ref'] 		= $paylike_query->row['trans_ref'];
+					$data['p_action']  		= $paylike_query->row['p_action'];
+				}
+
+			} else {
+				$data['paylike_active'] = 0;
+			}
+            ]]></add>
+        </operation>
+	</file>
+
+</modification>
