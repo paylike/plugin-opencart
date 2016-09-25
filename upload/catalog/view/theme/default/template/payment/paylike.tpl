@@ -4,7 +4,7 @@
   </div>
 </div>
 
-<script type="text/javascript" src="//sdk.paylike.io/2.js"></script>
+<script type="text/javascript" src="//sdk.paylike.io/3.js"></script>
 <script type="text/javascript"><!--
     
 $('body').on('click', '#button-confirm', function() {
