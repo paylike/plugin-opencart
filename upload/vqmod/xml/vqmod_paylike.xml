@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+	<id>Paylike Refund/Void/Capture from Admin - Full vQmod</id>
+	<version>1.4.x and above</version>
+	<vqmver required="true">2.5.0</vqmver>
+	<author>vqmod.com</author>
+	
+	<file name="admin/controller/sale/order.php">
+		<operation>
+			<search position="after"><![CDATA[public function getForm() {]]></search>
+			<add><![CDATA[
+			$data['paylike_active'] = 0;
+			if (isset($this->request->get['order_id'])) {
+	            $p_order_id = $this->request->get['order_id'];
+	            $paylike_query = $this->db->query("SELECT pa.trans_id AS trans_ref, pa.amount AS p_amount, pa.action AS p_action, pa.captured AS p_captured FROM `" . DB_PREFIX . "paylike_admin` pa WHERE pa.order_id = '" . (int)$p_order_id . "'");
+
+				if ($paylike_query->num_rows) {
+					$data['paylike_active'] = 1;
+					$data['p_amount']  		= (int)$paylike_query->row['p_amount'];
+					$data['trans_ref'] 		= $paylike_query->row['trans_ref'];
+					$data['p_action']  		= $paylike_query->row['p_action'];
+					$data['p_captured']  	= $paylike_query->row['p_captured'];
+				}
+
+			} else {
+				$data['paylike_active'] = 0;
+			}
+			//die(print_r($data));
+			]]></add>
+		</operation>
+	</file>
+	
+	<file name="admin/view/template/sale/order_form.tpl">
+		<operation>
+			<search position="after" offset="13"><![CDATA[
+			<label class="col-sm-2 control-label" for="input-payment-method"><?php echo $entry_payment_method; ?></label>
+			]]></search>
+			<add><![CDATA[
+			<?php if($paylike_active == 1) { ?>
+			<div class="form-group" id="paylike_tool_box">
+				<label class="col-sm-2 control-label" for="paylike_action">Paylike Tool</label>
+				<div class="col-sm-4">
+					<select name="paylike_action" id="paylike_action" class="form-control">
+						<option value="">----</option>
+						<?php if($p_captured==='NO'){ ?>
+						<option value="capture">Capture</option>
+						<?php } ?>
+						<option value="refund">Refund</option>
+						<option value="void">Void</option>						
+					</select>
+					<input type="hidden" name="p_trans_ref" id="p_trans_ref" value="<?php echo $trans_ref; ?>"/>
+					<input type="hidden" name="p_captured" id="p_captured" value="<?php echo $p_captured; ?>"/>
+				</div>
+				<div class="col-sm-2 refund-amount" style="display: none;">
+					<input type="text" value="<?php echo number_format(($p_amount/100), 2, '.', ''); ?>" name="paylike_amount" id="paylike_amount" class="form-control" placeholder="amount"/>
+				</div>
+				<div class="col-sm-2 refund-reason" style="display: none;">
+					<input type="text" class="form-control" id="paylike_refund_reason" name="paylike_refund_reason" value="" placeholder="refund reason"/>      
+				</div>
+				<div class="col-sm-2">
+					<input type="button" class="btn-primary btn" id="paylike_action_btn" name="paylike_action_btn" value="Submit" />      
+				</div>
+			</div>
+			<script type="text/javascript"><!--
+				$('body').on('change', '#paylike_action', function() {
+					if( $(this).val()=="refund" ) {
+						$('.refund-reason').show();
+						$('.refund-amount').show();						
+					}
+					else {
+						$('.refund-reason').hide();
+						$('.refund-amount').hide();
+					}
+				});
+						
+				$('body').on('click', '#paylike_action_btn', function() {
+					var p_trans_ref = $('#p_trans_ref').val(),
+						p_captured = $('#p_captured').val(),
+						p_action = $('#paylike_action').val(),
+						p_amount = $('#paylike_amount').val(),
+						p_reason = $('#paylike_refund_reason').val();
+					
+					console.log(p_trans_ref+' '+p_action+' '+p_amount);
+					
+					$.ajax({
+						url: 'index.php?route=payment/paylike/doaction&token=<?php echo $token; ?>',
+						type: 'post',
+						data: {trans_ref: p_trans_ref, p_action: p_action, p_amount: p_amount, p_reason: p_reason, p_order_id: <?php echo (int)$_GET['order_id']; ?>, p_captured: p_captured},
+						dataType: 'json',
+						beforeSend: function() {
+							$('#paylike_action_btn').val('Processing');
+						},
+						complete: function() {
+							$('#paylike_action_btn').val('Submit');
+						},
+						success: function(data) {
+							$('.p_alert').remove();
+							console.log(data);
+							
+							if (data.transaction.error === 1) {
+								$('#paylike_tool_box').prepend('<div class="alert alert-danger p_alert"><i class="fa fa-exclamation-circle"></i> ' + data.transaction.errors + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+							}
+							
+							if (data.transaction.successful === true) {
+								if(p_action=='capture') {
+									$('#paylike_action option[value="capture "]').hide();
+									$('#p_captured').val('YES');
+								}
+								
+								$('#paylike_tool_box').prepend('<div class="alert alert-success p_alert"><i class="fa fa-check-circle"></i> ' + data.success_message + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+								$('#input-order-status').val(data.order_status_id);
+								$('#paylike_refund_reason').val('');
+							}							
+						},
+						error: function(xhr, ajaxOptions, thrownError) {
+							alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+						}
+					});					
+				});
+			//--></script>
+			<?php } ?>
+			]]></add>
+		</operation>
+	</file>
+
+	<file name="catalog/view/theme/default/template/checkout/payment_method.tpl">
+		<operation>
+			<search position="replace"><![CDATA[
+				<div class="radio">
+		  	]]></search>
+			<add><![CDATA[
+				<?php /* <div class="radio">
+			]]></add>
+		</operation>
+		<operation>
+			<search position="replace" index="2"><![CDATA[
+				</div>
+		  	]]></search>
+			<add><![CDATA[
+				</div> */ ?>
+				<style type="text/css">
+					ul.card {
+						display: inline-flex;
+						display: -webkit-inline-flex;
+						list-style:none;
+						padding-left: 10px;
+					}
+					.card li {
+					    margin-right: 5px;
+					}
+					.payment-method-helptext{
+						width:100%; height:auto;
+						background: #dfdcde;
+						padding: 10px;
+						border:none;
+						border-radius:5px;
+						position:relative;
+						display:block;
+						float:left;
+						box-sizing:border-box;
+						-webkit-box-sizing:border-box;
+						margin-bottom: 10px;
+					}
+					.payment-method-helptext:after, .payment-method-helptext:before{
+						bottom: 100%;
+						left: 30px;
+						border: solid transparent;
+						content: " "; height: 0;
+						width: 0; position: absolute;
+						pointer-events: none;
+					}
+
+					.payment-method-helptext:before{
+						border-color: rgba(223, 220, 222, 0);
+						border-bottom-color: #dfdcde;
+						border-width: 10px;
+						margin-top: -5px;
+					}
+					.payment-method-helptext:after{
+						border-color: rgba(223, 220, 222, 0);
+						border-bottom-color: #dfdcde;
+						border-width: 8px;
+						margin-top: -3px;
+					}
+
+				</style>
+				<div class="radio">
+				  	<label>
+					    <?php if ($payment_method['code'] == $code || !$code) { ?>
+					    <?php $code = $payment_method['code']; ?>
+					    <input type="radio" class="payment_method" name="payment_method" value="<?php echo $payment_method['code']; ?>" checked="checked" />
+					    <?php } else { ?>
+					    <input type="radio" class="payment_method" name="payment_method" value="<?php echo $payment_method['code']; ?>" />    
+					    <?php } ?>
+					    <?php echo $payment_method['title']; ?>
+					    <?php if($payment_method['code'] == 'paylike') { ?>
+					    <ul class="card">
+					      <li><img src="catalog/view/theme/default/image/paylike_mastercard.png" /></li>
+					      <li><img src="catalog/view/theme/default/image/paylike_visa.png" /></li>
+					    </ul>
+					    <?php } ?>
+					    <?php if ($payment_method['terms']) { ?>
+					    (<?php echo $payment_method['terms']; ?>)
+					    <?php } ?>
+				  	</label>
+				  	<?php if($payment_method['code'] == 'paylike') { ?>
+					  	<div class="payment-method-helptext" style="display:none;">
+					    	Note: <?php echo $payment_method['description']; ?><?php if ($payment_method['mode'] == 'test') { ?><br/><b>TEST MODE ENABLED.</b> In test mode, you can use the card number 4100 0000 0000 0000 with any CVC and a valid expiration date. <?php } ?> 
+					  	</div>
+					  	<script type="text/javascript">
+					  		$(document).ready(function() {
+								var PAYMENT_METHOD = $('.payment_method').val();
+								if(PAYMENT_METHOD == 'paylike'){
+									//$('.payment-method-helptext').css('display', 'block');
+									$('.payment-method-helptext').fadeIn('slow');
+								} else {
+									$('.payment-method-helptext').css('display', 'none');
+								}
+							});
+							$('.payment_method').on('change',function() {
+								var PAYMENT_METHOD = $(this).val();								
+								if(PAYMENT_METHOD == 'paylike'){
+									$('.payment-method-helptext').fadeIn('slow');
+								} else {
+									$('.payment-method-helptext').css('display', 'none');
+								}
+							});
+						</script>  
+					<?php } ?>
+				</div>
+			]]></add>
+		</operation>
+	</file>
+
+</modification>

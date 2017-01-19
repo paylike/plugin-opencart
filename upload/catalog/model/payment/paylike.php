@@ -20,9 +20,11 @@ class ModelPaymentPaylike extends Model {
 		if ($status) {
 			$method_data = array(
 				'code'       => 'paylike',
-				'title'      => $this->language->get('text_title'),
+				'title'      => $this->config->get('paylike_payment_method_title')/*$this->language->get('text_title')*/,
+				'description'      => $this->config->get('paylike_payment_method_description'),
 				'terms'      => '',
-				'sort_order' => $this->config->get('paylike_sort_order')
+				'sort_order' => $this->config->get('paylike_sort_order'),
+				'mode'		 => $this->config->get('paylike_mode')
 			);
 		}
 
