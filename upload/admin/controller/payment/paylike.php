@@ -491,6 +491,6 @@ class ControllerPaymentPaylike extends Controller {
             $total = $total * 100;
         }
 
-        return $total;
+        return ceil($total);
     }
 }

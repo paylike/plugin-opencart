@@ -24,6 +24,7 @@ $('body').on('click', '#button-confirm', function() {
             telephone: '<?php echo $telephone; ?>',
             address: '<?php echo $address; ?>',
             customerIp: '<?php echo $ip; ?>',
+            locale: '<?php echo $_SESSION['language']; ?>',
             platform_version: '<?php echo VERSION; ?>',
             ecommerce: 'opencart',
             version: '1.0.1'
