@@ -9,6 +9,10 @@ Released under the MIT license: https://opensource.org/licenses/MIT
 
 - 2.0
 
+### Prerequisites
+
+- The plugin needs vQmod to function, you can find how to install it here: https://github.com/vqmod/vqmod/wiki/Installing-vQmod-on-OpenCart
+
 ### Installation
 
 1. Copy all the files inside the `upload` folder to the opencart folder, this will add files to the necessary folders. This should be done via ftp, or inside a file manager, for example the cpanel file manager. 
