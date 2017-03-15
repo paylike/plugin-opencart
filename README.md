@@ -5,23 +5,24 @@ available by the community.
 
 Released under the MIT license: https://opensource.org/licenses/MIT
 
-### Supported OpenCart versions
+You can also find information about the plugin here: https://paylike.io/plugins/opencart20
+
+## Supported OpenCart versions
 
 - 2.0
 
-### Prerequisites
+## Prerequisites
 
-- The plugin needs vQmod to function, you can find how to install it here: https://github.com/vqmod/vqmod/wiki/Installing-vQmod-on-OpenCart
+- The plugin needs vQmod to function, you can read how to install it here: https://github.com/vqmod/vqmod/wiki/Installing-vQmod-on-OpenCart
 
-### Installation
+## Installation
 
 1. Copy all the files inside the `upload` folder to the opencart folder, this will add files to the necessary folders. This should be done via ftp, or inside a file manager, for example the cpanel file manager. 
 2. Log in as administrator and click  "Extensions" from the top menu then "extension" then "payments" and install the Paylike plugin by clicking the `Install` link listed there.
 3. Click the Edit Paylike button 
 4. Add the Public and App key that you can find in your Paylike account and enable the plugin
 
-
-### Updating settings
+## Updating settings
 
 Under the extension settings, you can:
  * Update the payment method text in the payment gateways list

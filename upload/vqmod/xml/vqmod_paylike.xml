@@ -205,7 +205,7 @@
 				  	</label>
 				  	<?php if($payment_method['code'] == 'paylike') { ?>
 					  	<div class="payment-method-helptext" style="display:none;">
-					    	Note: This gateway processess payments securely via © Paylike. Your Card Detail <b>never</b> hit our server. <?php if ($payment_method['mode'] == 'test') { ?>TEST MODE ENABLED. In test mode, you can use the card number 4100 0000 0000 0000 with any CVC and a valid expiration date. <?php } ?> 
+					    	Note: This gateway processess payments securely via © Paylike. Your card details <b>never</b> hit our server. <?php if ($payment_method['mode'] == 'test') { ?>TEST MODE ENABLED. In test mode, you can use the card number 4100 0000 0000 0000 with any CVC and a valid expiration date. <?php } ?>
 					  	</div>
 					  	<script type="text/javascript">
 					  		$(document).ready(function() {
