@@ -195,8 +195,8 @@
 					    <?php echo $payment_method['title']; ?>
 					    <?php if($payment_method['code'] == 'paylike') { ?>
 					    <ul class="card">
-					      <li><img src="catalog/view/theme/default/image/paylike_mastercard.png" /></li>
-					      <li><img src="catalog/view/theme/default/image/paylike_visa.png" /></li>
+					      <li><img width="32" src="catalog/view/theme/default/image/paylike_mastercard.svg" /></li>
+					      <li><img width="32" src="catalog/view/theme/default/image/paylike_visa.svg" /></li>
 					    </ul>
 					    <?php } ?>
 					    <?php if ($payment_method['terms']) { ?>
@@ -205,7 +205,7 @@
 				  	</label>
 				  	<?php if($payment_method['code'] == 'paylike') { ?>
 					  	<div class="payment-method-helptext" style="display:none;">
-					    	Note: <?php echo $payment_method['description']; ?><?php if ($payment_method['mode'] == 'test') { ?><br/><b>TEST MODE ENABLED.</b> In test mode, you can use the card number 4100 0000 0000 0000 with any CVC and a valid expiration date. <?php } ?> 
+					    	Note: This gateway processess payments securely via © Paylike. Your card details <b>never</b> hit our server. <?php if ($payment_method['mode'] == 'test') { ?>TEST MODE ENABLED. In test mode, you can use the card number 4100 0000 0000 0000 with any CVC and a valid expiration date. <?php } ?>
 					  	</div>
 					  	<script type="text/javascript">
 					  		$(document).ready(function() {

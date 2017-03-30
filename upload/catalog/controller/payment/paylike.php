@@ -73,10 +73,13 @@ class ControllerPaymentPaylike extends Controller {
 		}
 		$data['products'] = json_encode($products_array);
 
-		$data['paylike_public_key'] = $this->config->get('paylike_key');
+		$data['paylike_public_key'] = ($this->config->get('paylike_mode') == 'test')?$this->config->get('paylike_test_key'):$this->config->get('paylike_live_key');
 		$data['popup_title'] = $this->config->get('paylike_title');
-		$data['popup_description'] = implode(", & ", $products_label);
-
+        if($this->config->get('paylike_description_status') == 1){
+            $data['popup_description'] = ($this->config->get('paylike_description'))?$this->config->get('paylike_description'):'';
+        } else {
+            $data['popup_description'] = implode(", & ", $products_label);
+        }
 		$data['order_id'] = $this->session->data['order_id'];
 		$data['name'] = $order_info['payment_firstname']." ".$order_info['payment_lastname'];
 		$data['email'] = $order_info['email'];
@@ -144,7 +147,7 @@ class ControllerPaymentPaylike extends Controller {
             $total = $total * 100;
         }
 
-        return $total;
+        return ceil($total);
     }
 
 	/**
@@ -160,8 +163,8 @@ class ControllerPaymentPaylike extends Controller {
         $this->enabled            	= $this->config->get('paylike_status');
         $this->testmode           	= 'test' === $this->config->get('paylike_mode');
         $this->capture            	= '1' === $this->config->get('paylike_capture');
-        $this->app_key         		= $this->config->get('paylike_app_key');
-        $this->public_key         	= $this->config->get('paylike_public_key');
+        $this->app_key         		= ($this->testmode)?$this->config->get('paylike_test_app_key'):$this->config->get('paylike_live_app_key');
+        $this->public_key         	= ($this->testmode)?$this->config->get('paylike_test_public_key'):$this->config->get('paylike_live_public_key');
         $this->logging            	= 'yes' === 'yes';
 
         if ( $this->app_key != '' ) {
@@ -358,7 +361,7 @@ class ControllerPaymentPaylike extends Controller {
 		if (!$pat_order_query->num_rows) {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "paylike_admin SET `order_id` = '" . $order['order_id'] . "', trans_id = '" .$transaction_id . "', amount = " .$amount . ", captured = '" . $captured . "'");
 		} else {
-			$this->db->query("UPDATE " . DB_PREFIX . "paylike_admin SET trans_id = '" . $transaction_id . "', amount = '" . $amount . "' WHERE `order_id` = '" . $order['order_id'] . "', captured = '" . $captured . "'");
+			$this->db->query("UPDATE " . DB_PREFIX . "paylike_admin SET trans_id = '" . $transaction_id . "', amount = '" . $amount . "' WHERE `order_id` = '" . $order['order_id'] . "' AND  captured = '" . $captured . "'");
 		}
     }
 
