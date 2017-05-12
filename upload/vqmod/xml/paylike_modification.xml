@@ -1,14 +1,14 @@
 <modification>
 
-	<id>Paylike Refund/Void/Capture from Admin - Full vQmod</id>
-	<version>1</version>
-	<vqmver>2.5.1</vqmver>
-	<author>Ocean</author>
+    <id>Paylike Refund/Void/Capture from Admin - Full vQmod</id>
+    <version>1</version>
+    <vqmver>2.5.1</vqmver>
+    <author>Ocean</author>
 
-	<file name="admin/view/template/sale/order_form.tpl">
+    <file name="admin/view/template/sale/order_form.tpl">
 
-		<!-- Add new fields to form -->
-		<operation>
+        <!-- Add new fields to form -->
+        <operation>
             <search position="after" offset="13"><![CDATA[
             <label class="col-sm-2 control-label" for="input-payment-method"><?php echo $entry_payment_method; ?></label>
             ]]></search>
@@ -103,12 +103,12 @@
             ]]></add>
         </operation>
 
-	</file>
+    </file>
 
-	<file name="admin/controller/sale/order.php">
+    <file name="admin/controller/sale/order.php">
 
-		<!-- Add new fields to form -->
-		<operation>
+        <!-- Add new fields to form -->
+        <operation>
             <search position="after"><![CDATA[
             protected function getList() {
             ]]></search>
@@ -130,6 +130,6 @@
 			}
             ]]></add>
         </operation>
-	</file>
+    </file>
 
 </modification>

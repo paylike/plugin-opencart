@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modification>
-	<id>Paylike Refund/Void/Capture from Admin - Full vQmod</id>
-	<version>1.4.x and above</version>
-	<vqmver required="true">2.5.0</vqmver>
-	<author>vqmod.com</author>
-	
-	<file name="admin/controller/sale/order.php">
-		<operation>
-			<search position="after"><![CDATA[public function getForm() {]]></search>
-			<add><![CDATA[
+    <id>Paylike Refund/Void/Capture from Admin - Full vQmod</id>
+    <version>1.4.x and above</version>
+    <vqmver required="true">2.5.0</vqmver>
+    <author>vqmod.com</author>
+
+    <file name="admin/controller/sale/order.php">
+        <operation>
+            <search position="after"><![CDATA[public function getForm() {]]></search>
+            <add><![CDATA[
 			$data['paylike_active'] = 0;
 			if (isset($this->request->get['order_id'])) {
 	            $p_order_id = $this->request->get['order_id'];
@@ -27,15 +27,15 @@
 			}
 			//die(print_r($data));
 			]]></add>
-		</operation>
-	</file>
-	
-	<file name="admin/view/template/sale/order_form.tpl">
-		<operation>
-			<search position="after" offset="13"><![CDATA[
+        </operation>
+    </file>
+
+    <file name="admin/view/template/sale/order_form.tpl">
+        <operation>
+            <search position="after" offset="13"><![CDATA[
 			<label class="col-sm-2 control-label" for="input-payment-method"><?php echo $entry_payment_method; ?></label>
 			]]></search>
-			<add><![CDATA[
+            <add><![CDATA[
 			<?php if($paylike_active == 1) { ?>
 			<div class="form-group" id="paylike_tool_box">
 				<label class="col-sm-2 control-label" for="paylike_action">Paylike Tool</label>
@@ -120,23 +120,23 @@
 			//--></script>
 			<?php } ?>
 			]]></add>
-		</operation>
-	</file>
+        </operation>
+    </file>
 
-	<file name="catalog/view/theme/default/template/checkout/payment_method.tpl">
-		<operation>
-			<search position="replace"><![CDATA[
+    <file name="catalog/view/theme/default/template/checkout/payment_method.tpl">
+        <operation>
+            <search position="replace"><![CDATA[
 				<div class="radio">
 		  	]]></search>
-			<add><![CDATA[
+            <add><![CDATA[
 				<?php /* <div class="radio">
 			]]></add>
-		</operation>
-		<operation>
-			<search position="replace" index="2"><![CDATA[
+        </operation>
+        <operation>
+            <search position="replace" index="2"><![CDATA[
 				</div>
 		  	]]></search>
-			<add><![CDATA[
+            <add><![CDATA[
 				</div> */ ?>
 				<style type="text/css">
 					ul.card {
@@ -229,7 +229,7 @@
 					<?php } ?>
 				</div>
 			]]></add>
-		</operation>
-	</file>
+        </operation>
+    </file>
 
 </modification>
