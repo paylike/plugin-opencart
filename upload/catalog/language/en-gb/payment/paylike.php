@@ -1,3 +1,3 @@
 <?php
 // Text
-$_['text_title']		   = 'Credit Card (Paylike)';
+$_['text_title'] = 'Credit Card (Paylike)';
