@@ -398,7 +398,41 @@ class ControllerPaymentPaylike extends Controller
                         if (isset($response['transaction'])) {
                             $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '11' WHERE `order_id` = '{$orderId}'");
                             $response['order_status_id'] = 11;
-                            $response['success_message'] = sprintf($this->language->get('order_refunded_success'), $this->session->data['currency'] . ' ' . number_format(($amount / 100), 2, '.', ''));
+                            $zero_decimal_currency = array(
+                                "BIF",
+                                "BYR",
+                                "DJF",
+                                "GNF",
+                                "JPY",
+                                "KMF",
+                                "KRW",
+                                "PYG",
+                                "RWF",
+                                "VND",
+                                "VUF",
+                                "XAF",
+                                "XOF",
+                                "XPF",
+                            );
+                            $three_decimal_currency = array(
+                                "BHD",
+                                "IQD",
+                                "JQD",
+                                "KWD",
+                                "OMR",
+                                "TND",
+                            );
+                            $currency_code =  $this->session->data['currency'];
+                            if (in_array($currency_code, $zero_decimal_currency)) {
+                                $divider = 1;
+                            } else {
+                                if (in_array($currency_code, $three_decimal_currency)) {
+                                    $divider = 1000;
+                                }else{
+                                    $divider = 100;
+                                }
+                            }
+                            $response['success_message'] = sprintf($this->language->get('order_refunded_success'), $this->session->data['currency'] . ' ' . number_format(($amount / $divider), 2, '.', ''));
                         } else {
                             $response['transaction']['errors'] = $this->get_response_error($response);
                             $response['transaction']['error'] = 1;
@@ -466,17 +500,48 @@ class ControllerPaymentPaylike extends Controller
      */
     public function get_paylike_amount($total, $currency = '')
     {
-        $zero_decimal_currency = array(
-            "CLP",
-            "JPY",
-            "VND"
-        );
-        $currency_code = $currency != '' ? $currency : $this->session->data['currency'];
-        if (in_array($currency_code, $zero_decimal_currency)) {
-            $total = number_format($total, 0, ".", "");
-        } else {
-            $total = $total * 100;
+        $total = $this->currency->format($total);
+        $this->load->model('localisation/currency');
+        $results = $this->model_localisation_currency->getCurrencies();
+        $currencies = array();
+        foreach ($results as $result) {
+            $currencies[] = (isset($result['symbol_left']) && !empty($result['symbol_left'])) ? $result['symbol_left'] : ((isset($result['symbol_right']) && !empty($result['symbol_right'])) ? $result['symbol_right'] : '');
         }
+        $total = str_replace($currencies, '', $total);
+        $zero_decimal_currency = array(
+            "BIF",
+            "BYR",
+            "DJF",
+            "GNF",
+            "JPY",
+            "KMF",
+            "KRW",
+            "PYG",
+            "RWF",
+            "VND",
+            "VUF",
+            "XAF",
+            "XOF",
+            "XPF",
+        );
+        $three_decimal_currency = array(
+            "BHD",
+            "IQD",
+            "JQD",
+            "KWD",
+            "OMR",
+            "TND",
+        );
+        if (in_array($currency, $zero_decimal_currency)) {
+            $multiplier = 1;
+        } else {
+            if (in_array($currency, $three_decimal_currency)) {
+                $multiplier = 1000;
+            }else{
+                $multiplier = 100;
+            }
+        }
+        $total = number_format(str_replace(',', '', $total), 2, ".", "") * $multiplier;
 
         return ceil($total);
     }
