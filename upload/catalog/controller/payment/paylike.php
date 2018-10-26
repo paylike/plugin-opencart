@@ -111,7 +111,7 @@ class ControllerPaymentPaylike extends Controller
      */
     public function get_paylike_amount($total, $currency = '')
     {
-        $total = $this->currency->format($total);
+        $total = $this->currency->format($total,$currency);
         $this->load->model('localisation/currency');
         $results = $this->model_localisation_currency->getCurrencies();
         $currencies = array();
