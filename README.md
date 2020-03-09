@@ -1,5 +1,7 @@
 # OpenCart plugin for Paylike
 
+**Opencart 2.x is no longer actively receiving updates so for improved security and maintenance we encourage you to use 3.x. You can find the 3.x extension here: https://github.com/paylike/plugin-opencart-3**
+
 This plugin is *not* developed or maintained by Paylike but kindly made
 available by the community.
 
