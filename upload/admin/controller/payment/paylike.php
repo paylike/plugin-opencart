@@ -432,7 +432,7 @@ class ControllerPaymentPaylike extends Controller
                                     $divider = 100;
                                 }
                             }
-                            $response['success_message'] = sprintf($this->language->get('order_refunded_success'), $this->session->data['currency'] . ' ' . number_format(($amount / $divider), 2, '.', ''));
+                            $response['success_message'] = sprintf($this->language->get('order_refunded_success'), $this->session->data['currency'] . ' ' . number_format(($amount / $divider), 2, $this->language->get('decimal_point'), ''));
                         } else {
                             $response['transaction']['errors'] = $this->get_response_error($response);
                             $response['transaction']['error'] = 1;
@@ -541,7 +541,7 @@ class ControllerPaymentPaylike extends Controller
                 $multiplier = 100;
             }
         }
-        $total = number_format(str_replace(',', '', $total), 2, ".", "") * $multiplier;
+        $total = number_format(str_replace($this->language->get('thousand_point'), '', $total), 2, $this->language->get('decimal_point'), "") * $multiplier;
 
         return ceil($total);
     }
