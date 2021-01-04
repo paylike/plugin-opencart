@@ -152,7 +152,7 @@ class ControllerPaymentPaylike extends Controller
                 $multiplier = 100;
             }
         }
-        $total = number_format(str_replace(',', '', $total), 2, ".", "") * $multiplier;
+        $total = number_format(str_replace($this->language->get('thousand_point'), '', $total), 2, $this->language->get('decimal_point'), "") * $multiplier;
 
         return ceil($total);
     }
