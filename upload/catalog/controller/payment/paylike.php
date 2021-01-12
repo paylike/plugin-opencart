@@ -111,7 +111,7 @@ class ControllerPaymentPaylike extends Controller
      */
     public function get_paylike_amount($total, $currency = '')
     {
-        $total = $this->currency->format($total,$currency);
+        $total = $this->currency->format($total,$currency,'',false);
         $this->load->model('localisation/currency');
         $results = $this->model_localisation_currency->getCurrencies();
         $currencies = array();
@@ -152,7 +152,7 @@ class ControllerPaymentPaylike extends Controller
                 $multiplier = 100;
             }
         }
-        $total = number_format(str_replace($this->language->get('thousand_point'), '', $total), 2, $this->language->get('decimal_point'), "") * $multiplier;
+        $total = number_format($total, 2, ".", "") * $multiplier;
 
         return ceil($total);
     }
