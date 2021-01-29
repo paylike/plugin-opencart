@@ -287,7 +287,7 @@ class ControllerPaymentPaylike extends Controller
         } else {
             $orderId = $order['order_id'];
             $status = $this->config->get('paylike_order_status_id');
-            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '{$status}' WHERE `order_id` = '{$orderId}'");
+            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '".$status."' WHERE `order_id` = '".$orderId."'");
             $this->get_transaction_authorization_details($result);
             $this->save_transaction($result['transaction']['id'], $order);
             $response = $result;
@@ -404,7 +404,7 @@ class ControllerPaymentPaylike extends Controller
         } else {
             $orderId = $order['order_id'];
             $status = $this->config->get('paylike_order_status_id');
-            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '{$status}' WHERE `order_id` = '{$orderId}'");
+            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '".$status."' WHERE `order_id` = '".$orderId."'");
             $this->get_transaction_capture_details($result);
             $this->save_transaction($result['transaction']['id'], $order, 'YES');
             $response = $result;
