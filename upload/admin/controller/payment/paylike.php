@@ -377,8 +377,8 @@ class ControllerPaymentPaylike extends Controller
                         $data['amount'] = (int)$trans_data['transaction']['pendingAmount'];
                         $response = Paylike\Transaction::capture($transactionId, $data);
                         if (isset($response['transaction'])) {
-                            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '5' WHERE `order_id` = '{$orderId}'");
-                            $this->db->query("UPDATE " . DB_PREFIX . "paylike_admin SET captured = 'YES' WHERE `order_id` = '{$orderId}'");
+                            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '5' WHERE `order_id` = '".$orderId."'");
+                            $this->db->query("UPDATE " . DB_PREFIX . "paylike_admin SET captured = 'YES' WHERE `order_id` = '".$orderId."'");
                             $response['order_status_id'] = 5;
                             $response['success_message'] = $this->language->get('order_captured_success');
                         } else {
@@ -396,7 +396,7 @@ class ControllerPaymentPaylike extends Controller
                     if ('YES' == $captured) {
                         $response = Paylike\Transaction::refund($transactionId, $data);
                         if (isset($response['transaction'])) {
-                            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '11' WHERE `order_id` = '{$orderId}'");
+                            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '11' WHERE `order_id` = '".$orderId."'");
                             $response['order_status_id'] = 11;
                             $zero_decimal_currency = array(
                                 "BIF",
@@ -453,7 +453,7 @@ class ControllerPaymentPaylike extends Controller
 
                         $response = Paylike\Transaction::void($transactionId, $data);
                         if (isset($response['transaction'])) {
-                            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '16' WHERE `order_id` = '{$orderId}'");
+                            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '16' WHERE `order_id` = '".$orderId."'");
                             $response['order_status_id'] = 16;
                             $response['success_message'] = $this->language->get('order_voided_success');
                         }
@@ -471,14 +471,14 @@ class ControllerPaymentPaylike extends Controller
                     if ( 'YES' == $captured ) {
                         $response = Paylike\Transaction::refund( $transactionId, $data );
                         if (isset($response['transaction'])) {
-                            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '16' WHERE `order_id` = '{$orderId}'");
+                            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '16' WHERE `order_id` = '".$orderId."'");
                             $response['order_status_id'] = 16;
                             $response['success_message'] = $this->language->get('order_voided_success');
                         }
                     } else {
                         $response = Paylike\Transaction::void( $transactionId, $data );
                         if (isset($response['transaction'])) {
-                            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '16' WHERE `order_id` = '{$orderId}'");
+                            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '16' WHERE `order_id` = '".$orderId."'");
                             $response['order_status_id'] = 16;
                         }
                     }*/
