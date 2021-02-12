@@ -42,8 +42,9 @@ Under the extension settings, you can:
  * Change the capture type (Instant/Manual via Paylike Tool)
 
 ## Changelog
- * Bug fix - deprecated order status update procedure.
- * Bug fix - duplicated Paylike panel in admin > order > edit. Removed the duplicated vqmode file.
- * Bug fix - PHP complex expressions compatibility.
- * Added support for multi-language currency separator.
- * Bug fix - Currency separator issue.
+ * 12/02/2021
+   * Bug fix - deprecated order status update procedure.
+   * Bug fix - duplicated Paylike panel in admin > order > edit. Removed the duplicated vqmode file.
+   * Bug fix - PHP complex expressions compatibility.
+   * Added support for multi-language currency separator.
+   * Bug fix - Currency separator issue.
