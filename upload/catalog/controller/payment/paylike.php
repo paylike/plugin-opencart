@@ -373,7 +373,7 @@ class ControllerPaymentPaylike extends Controller
 
         } else {
             $this->load->model('checkout/order');
-			$this->model_checkout_order->addOrderHistory($order['order_id'], $this->config->get('paylike_order_status_id'), $result['transaction']['id']);
+            $this->model_checkout_order->addOrderHistory($order['order_id'], $this->config->get('paylike_order_status_id'), $result['transaction']['id']);
 
             $this->get_transaction_capture_details($result);
             $this->save_transaction($result['transaction']['id'], $order, 'YES');
