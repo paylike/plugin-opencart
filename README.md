@@ -35,10 +35,15 @@ Once you have installed OpenCart, follow these simple steps:
 Under the extension settings, you can:
  * Update the payment method text in the payment gateways list
  * Update the payment method description in the payment gateways list
- * Update the title that shows up in the payment popup 
+ * Update the title that shows up in the payment popup
  * Update the popup description, choose whether you want to show the popup  (the cart contents will show up instead)
  * Add test/live keys
  * Set payment mode (test/live)
  * Change the capture type (Instant/Manual via Paylike Tool)
- 
-  
+
+## Changelog
+ * Bug fix - deprecated order status update procedure.
+ * Bug fix - duplicated Paylike panel in admin > order > edit. Removed the duplicated vqmode file.
+ * Bug fix - PHP complex expressions compatibility.
+ * Added support for multi-language currency separator.
+ * Bug fix - Currency separator issue.
