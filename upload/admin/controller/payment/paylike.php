@@ -350,12 +350,16 @@ class ControllerPaymentPaylike extends Controller
             $this->logger->write('Paylike Class Initialized in Admin');
 
             $this->load->language('payment/paylike');
+            $this->load->model('sale/order');
 
             $orderId = $this->request->post['p_order_id'];
+      			$orderInfo = $this->model_sale_order->getOrder($orderId);
+      			$orderCurrency = $orderInfo['currency_code'];
+
             $transactionId = $this->request->post['trans_ref'];
             $action = $this->request->post['p_action'];
             if (isset($this->request->post['p_amount']) && !empty($this->request->post['p_amount']))
-                $amount = $this->get_paylike_amount($this->request->post['p_amount']);
+                $amount = $this->get_paylike_amount($this->request->post['p_amount'],$orderCurrency);
             else
                 $amount = 0;
             $reason = $this->request->post['p_reason'];
@@ -371,7 +375,7 @@ class ControllerPaymentPaylike extends Controller
                         $data = array(
                             'amount' => $amount,
                             'descriptor' => "Order #{$orderId}",
-                            'currency' => $this->session->data['currency']
+                            'currency' => $orderCurrency
                         );
                         $trans_data = Paylike\Transaction::fetch($transactionId);
                         $data['amount'] = (int)$trans_data['transaction']['pendingAmount'];
@@ -426,17 +430,17 @@ class ControllerPaymentPaylike extends Controller
                                 "OMR",
                                 "TND",
                             );
-                            $currency_code =  $this->session->data['currency'];
-                            if (in_array($currency_code, $zero_decimal_currency)) {
+
+                            if (in_array($orderCurrency, $zero_decimal_currency)) {
                                 $divider = 1;
                             } else {
-                                if (in_array($currency_code, $three_decimal_currency)) {
+                                if (in_array($orderCurrency, $three_decimal_currency)) {
                                     $divider = 1000;
                                 }else{
                                     $divider = 100;
                                 }
                             }
-                            $response['success_message'] = sprintf($this->language->get('order_refunded_success'), $this->session->data['currency'] . ' ' . number_format(($amount / $divider), 2, $this->language->get('decimal_point'), ''));
+                            $response['success_message'] = sprintf($this->language->get('order_refunded_success'), $orderCurrency . ' ' . number_format(($amount / $divider), 2, $this->language->get('decimal_point'), ''));
                             $response['order_status_id'] = 11;
                             $data = array(
                               	'order_status_id' => $response['order_status_id'],
