@@ -353,8 +353,8 @@ class ControllerPaymentPaylike extends Controller
             $this->load->model('sale/order');
 
             $orderId = $this->request->post['p_order_id'];
-      			$orderInfo = $this->model_sale_order->getOrder($orderId);
-      			$orderCurrency = $orderInfo['currency_code'];
+            $orderInfo = $this->model_sale_order->getOrder($orderId);
+            $orderCurrency = $orderInfo['currency_code'];
 
             $transactionId = $this->request->post['trans_ref'];
             $action = $this->request->post['p_action'];
