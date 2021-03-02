@@ -350,12 +350,16 @@ class ControllerPaymentPaylike extends Controller
             $this->logger->write('Paylike Class Initialized in Admin');
 
             $this->load->language('payment/paylike');
+            $this->load->model('sale/order');
 
             $orderId = $this->request->post['p_order_id'];
+            $orderInfo = $this->model_sale_order->getOrder($orderId);
+            $orderCurrency = $orderInfo['currency_code'];
+
             $transactionId = $this->request->post['trans_ref'];
             $action = $this->request->post['p_action'];
             if (isset($this->request->post['p_amount']) && !empty($this->request->post['p_amount']))
-                $amount = $this->get_paylike_amount($this->request->post['p_amount']);
+                $amount = $this->get_paylike_amount($this->request->post['p_amount'],$orderCurrency);
             else
                 $amount = 0;
             $reason = $this->request->post['p_reason'];
@@ -371,16 +375,22 @@ class ControllerPaymentPaylike extends Controller
                         $data = array(
                             'amount' => $amount,
                             'descriptor' => "Order #{$orderId}",
-                            'currency' => $this->session->data['currency']
+                            'currency' => $orderCurrency
                         );
                         $trans_data = Paylike\Transaction::fetch($transactionId);
                         $data['amount'] = (int)$trans_data['transaction']['pendingAmount'];
                         $response = Paylike\Transaction::capture($transactionId, $data);
                         if (isset($response['transaction'])) {
-                            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '5' WHERE `order_id` = '".$orderId."'");
-                            $this->db->query("UPDATE " . DB_PREFIX . "paylike_admin SET captured = 'YES' WHERE `order_id` = '".$orderId."'");
                             $response['order_status_id'] = 5;
                             $response['success_message'] = $this->language->get('order_captured_success');
+                            $data = array(
+                              	'order_status_id' => $response['order_status_id'],
+                              	'notify' => false,
+                              	'comment' => $response['success_message']
+                            );
+                            $this->addOrderHistory($orderId, $data);
+
+                            $this->db->query("UPDATE " . DB_PREFIX . "paylike_admin SET captured = 'YES' WHERE `order_id` = '".$orderId."'");
                         } else {
                             $response['transaction']['errors'] = $this->get_response_error($response);
                             $response['transaction']['error'] = 1;
@@ -396,8 +406,6 @@ class ControllerPaymentPaylike extends Controller
                     if ('YES' == $captured) {
                         $response = Paylike\Transaction::refund($transactionId, $data);
                         if (isset($response['transaction'])) {
-                            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '11' WHERE `order_id` = '".$orderId."'");
-                            $response['order_status_id'] = 11;
                             $zero_decimal_currency = array(
                                 "BIF",
                                 "BYR",
@@ -422,17 +430,24 @@ class ControllerPaymentPaylike extends Controller
                                 "OMR",
                                 "TND",
                             );
-                            $currency_code =  $this->session->data['currency'];
-                            if (in_array($currency_code, $zero_decimal_currency)) {
+
+                            if (in_array($orderCurrency, $zero_decimal_currency)) {
                                 $divider = 1;
                             } else {
-                                if (in_array($currency_code, $three_decimal_currency)) {
+                                if (in_array($orderCurrency, $three_decimal_currency)) {
                                     $divider = 1000;
                                 }else{
                                     $divider = 100;
                                 }
                             }
-                            $response['success_message'] = sprintf($this->language->get('order_refunded_success'), $this->session->data['currency'] . ' ' . number_format(($amount / $divider), 2, $this->language->get('decimal_point'), ''));
+                            $response['success_message'] = sprintf($this->language->get('order_refunded_success'), $orderCurrency . ' ' . number_format(($amount / $divider), 2, $this->language->get('decimal_point'), ''));
+                            $response['order_status_id'] = 11;
+                            $data = array(
+                              	'order_status_id' => $response['order_status_id'],
+                              	'notify' => false,
+                              	'comment' => $response['success_message']
+                            );
+                            $this->addOrderHistory($orderId, $data);
                         } else {
                             $response['transaction']['errors'] = $this->get_response_error($response);
                             $response['transaction']['error'] = 1;
@@ -453,9 +468,14 @@ class ControllerPaymentPaylike extends Controller
 
                         $response = Paylike\Transaction::void($transactionId, $data);
                         if (isset($response['transaction'])) {
-                            $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = '16' WHERE `order_id` = '".$orderId."'");
                             $response['order_status_id'] = 16;
                             $response['success_message'] = $this->language->get('order_voided_success');
+                            $data = array(
+                              	'order_status_id' => $response['order_status_id'],
+                              	'notify' => false,
+                              	'comment' => $response['success_message']
+                            );
+                            $this->addOrderHistory($orderId, $data);
                         }
 
                         if (!isset($response['transaction'])) {
@@ -562,5 +582,55 @@ class ControllerPaymentPaylike extends Controller
         $error_message = implode(" ", $error);
 
         return $error_message;
+    }
+
+    /**
+     * Change order status and add history registration
+     *
+     * @param string $order_id | The order id
+     * @param array $data | [order_status_id, notify, comment] | The order data
+     * @param int $store_id | default 0 | The store id
+     *
+     * @return string
+     */
+    public function addOrderHistory($order_id, $data, $store_id = 0)
+    {
+        $json = array();
+
+        $this->load->model('setting/store');
+
+        $store_info = $this->model_setting_store->getStore($store_id);
+
+        if ($store_info) {
+            $url = $store_info['ssl'];
+        } else {
+            $url = HTTPS_CATALOG;
+        }
+
+        if (isset($this->session->data['cookie'])) {
+            $curl = curl_init();
+
+            // Set SSL if required
+            if (substr($url, 0, 5) == 'https') {
+                curl_setopt($curl, CURLOPT_PORT, 443);
+            }
+
+            curl_setopt($curl, CURLOPT_HEADER, false);
+            curl_setopt($curl, CURLINFO_HEADER_OUT, true);
+            curl_setopt($curl, CURLOPT_USERAGENT, $this->request->server['HTTP_USER_AGENT']);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($curl, CURLOPT_FORBID_REUSE, false);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_URL, $url . 'index.php?route=api/order/history&order_id=' . $order_id);
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($curl, CURLOPT_COOKIE, session_name() . '=' . $this->session->data['cookie'] . ';');
+
+            $json = curl_exec($curl);
+
+            curl_close($curl);
+        }
+        return $json;
     }
 }
