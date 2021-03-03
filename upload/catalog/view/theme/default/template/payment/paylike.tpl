@@ -4,7 +4,7 @@
   </div>
 </div>
 
-<script type="text/javascript" src="https://sdk.paylike.io/3.js"></script>
+<script type="text/javascript" src="https://sdk.paylike.io/6.js"></script>
 <script type="text/javascript"><!--
     
 $('body').on('click', '#button-confirm', function() {
@@ -32,7 +32,7 @@ $('body').on('click', '#button-confirm', function() {
                 name: 'opencart',
                 version: '<?php echo VERSION; ?>',
         },
-        version: '1.0.2'
+        version: '1.0.3'
     },
     locale: '<?php echo $lc;  ?>'
 
