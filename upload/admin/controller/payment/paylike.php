@@ -352,16 +352,22 @@ class ControllerPaymentPaylike extends Controller
             $this->load->language('payment/paylike');
             $this->load->model('sale/order');
 
-            $orderId = $this->request->post['p_order_id'];
-      			$orderInfo = $this->model_sale_order->getOrder($orderId);
-      			$orderCurrency = $orderInfo['currency_code'];
-
             $transactionId = $this->request->post['trans_ref'];
             $action = $this->request->post['p_action'];
-            if (isset($this->request->post['p_amount']) && !empty($this->request->post['p_amount']))
-                $amount = $this->get_paylike_amount($this->request->post['p_amount'],$orderCurrency);
-            else
+
+            $orderId = $this->request->post['p_order_id'];
+            $orderInfo = $this->model_sale_order->getOrder($orderId);
+
+            $orderCurrency = $orderInfo['currency_code'];
+            $storeCurrency = $this->config->get('config_currency');
+            
+            if (isset($this->request->post['p_amount']) && !empty($this->request->post['p_amount'])){
+                /* Convert amount using store currency */
+                $amount = $this->get_paylike_amount($this->request->post['p_amount'],$storeCurrency);
+            }else{
                 $amount = 0;
+            }
+    
             $reason = $this->request->post['p_reason'];
             $captured = $this->request->post['p_captured'];
 
