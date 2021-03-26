@@ -18,10 +18,10 @@ $('body').on('click', '#button-confirm', function() {
             orderId: '<?php echo $order_id; ?>',
             products:  <?php echo $products; ?>,
             customer:{
-                name: '<?php echo $name; ?>',
+                name: "<?php echo $name; ?>",
                 email: '<?php echo $email; ?>',
                 telephone: '<?php echo $telephone; ?>',
-                address: '<?php echo $address; ?>',
+                address: "<?php echo $address; ?>",
                 customerIp: '<?php echo $ip; ?>'
            },
             platform:{
